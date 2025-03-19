@@ -1,6 +1,7 @@
 package com.quiz.kata_foo_bar_quix.config;
 
 import com.quiz.kata_foo_bar_quix.batch.FooBarQuixProcessor;
+import com.quiz.kata_foo_bar_quix.batch.listener.StepExceptionListener;
 import com.quiz.kata_foo_bar_quix.service.IFooBarQuixService;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -19,12 +20,14 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 @Configuration
 @EnableBatchProcessing
 public class BatchConfig extends DefaultBatchConfiguration {
 
 
+    Logger logger = Logger.getLogger(getClass().getName());
     private static final String INPUT_FILE_PATH = "input.txt";
     private static final String OUTPUT_FILE_PATH = "output.txt";
     private final IFooBarQuixService fooBarQuixService;
@@ -45,11 +48,16 @@ public class BatchConfig extends DefaultBatchConfiguration {
     public FlatFileItemWriter<String> writer() {
         FlatFileItemWriter<String> writer = new FlatFileItemWriter<>();
         writer.setResource(new FileSystemResource(new File(OUTPUT_FILE_PATH)));
-<<<<<<< HEAD
+
         writer.setAppendAllowed(true);
-=======
->>>>>>> c80873572db01defafc85be73a3c2cf4d8afb726
-        writer.setLineAggregator((LineAggregator<String>) item -> item);
+        writer.setLineAggregator((LineAggregator<String>) item -> {
+            try {
+                return item;
+            } catch (Exception e) {
+                logger.info("Error writing item: " + item + " - " + e.getMessage());
+                return "";
+            }
+        });
         return writer;
     }
 
@@ -63,14 +71,17 @@ public class BatchConfig extends DefaultBatchConfiguration {
     @Bean
     public Step step(JobRepository jobRepository,
                      FooBarQuixProcessor processor,
-                     PlatformTransactionManager transactionManager) {
+                     PlatformTransactionManager transactionManager,
+                     StepExceptionListener stepExceptionListener) {
         return new StepBuilder("step", jobRepository)
                 .<String, String>chunk(5, transactionManager)
                 .reader(reader())
                 .processor(processor)
                 .writer(writer())
+                .listener(stepExceptionListener)
                 .build();
     }
+
 
     @Bean
     public FooBarQuixProcessor processor() {
