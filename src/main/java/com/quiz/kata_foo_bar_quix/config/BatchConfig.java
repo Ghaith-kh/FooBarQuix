@@ -45,7 +45,10 @@ public class BatchConfig extends DefaultBatchConfiguration {
     public FlatFileItemWriter<String> writer() {
         FlatFileItemWriter<String> writer = new FlatFileItemWriter<>();
         writer.setResource(new FileSystemResource(new File(OUTPUT_FILE_PATH)));
+<<<<<<< HEAD
         writer.setAppendAllowed(true);
+=======
+>>>>>>> c80873572db01defafc85be73a3c2cf4d8afb726
         writer.setLineAggregator((LineAggregator<String>) item -> item);
         return writer;
     }
