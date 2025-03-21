@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(NumberFormatException.class)
-    public ResponseEntity<String> handleNumberFormatException(NumberFormatException ex) {
-        return ResponseEntity.badRequest().body("Invalid number format: " + ex.getMessage());
+    @ExceptionHandler(ProcessorException.class)
+    public ResponseEntity<String> handleNumberFormatException(ProcessorException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(" Error While Processing " + ex.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

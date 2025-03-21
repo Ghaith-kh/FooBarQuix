@@ -1,16 +1,17 @@
 package com.quiz.kata_foo_bar_quix.service;
 
+import com.quiz.kata_foo_bar_quix.exception.TreatmentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FooBarQuixTransformer {
     private static final Logger logger = LoggerFactory.getLogger(FooBarQuixTransformer.class);
 
-    private FooBarQuixTransformer() {
+    FooBarQuixTransformer() {
         // Constructeur privé pour empêcher l'instanciation
     }
 
-    public static String transform(int number) {
+    public static String transform(Integer number) {
         try {
             StringBuilder result = new StringBuilder();
 
@@ -18,9 +19,9 @@ public class FooBarQuixTransformer {
             applyDigitRules(number, result);
 
             return result.length() > 0 ? result.toString() : String.valueOf(number);
-        } catch (Exception e) {
+        } catch (TreatmentException e) {
             logger.error("Error transforming number: {} - {}", number, e.getMessage(), e);
-            return "ERROR";
+            throw new TreatmentException(e.getMessage());
         }
     }
 
@@ -28,8 +29,9 @@ public class FooBarQuixTransformer {
         try {
             if (number % 3 == 0) result.append("FOO");
             if (number % 5 == 0) result.append("BAR");
-        } catch (ArithmeticException e) {
+        } catch (TreatmentException e) {
             logger.error("Arithmetic error while checking divisibility of: {}", number, e);
+            throw new TreatmentException(e.getMessage());
         }
     }
 
@@ -44,6 +46,8 @@ public class FooBarQuixTransformer {
             }
         } catch (Exception e) {
             logger.error("Error processing digits of number: {}", number, e);
+            throw new TreatmentException(e.getMessage());
+
         }
     }
 }
